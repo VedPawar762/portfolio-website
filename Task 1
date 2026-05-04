@@ -28,7 +28,7 @@ body {
 
 <h2>Projects</h2>
 
-<!-- ✅ DYNAMIC PROJECTS -->
+
 <div id="projectContainer"></div>
 
 <h2>Contact</h2>
@@ -41,11 +41,6 @@ body {
 </form>
 
 <script>
-
-//////////////////////////////////////////////////////
-// 🔥 LOAD PROJECTS FROM BACKEND
-//////////////////////////////////////////////////////
-
 fetch("http://localhost:5000/projects")
   .then(res => res.json())
   .then(data => {
@@ -60,11 +55,6 @@ fetch("http://localhost:5000/projects")
       </div>
     `).join("");
   });
-
-//////////////////////////////////////////////////////
-// 📩 CONTACT FORM (REAL)
-//////////////////////////////////////////////////////
-
 function handleSubmit(e) {
   e.preventDefault();
 
