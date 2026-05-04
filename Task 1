@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ved Pawar — Developer Portfolio</title>
+
+<style>
+body {
+  background: #0a0a0a;
+  color: white;
+  font-family: Arial;
+  text-align: center;
+}
+
+.project-card {
+  border: 1px solid #333;
+  padding: 15px;
+  margin: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Ved Pawar</h1>
+<p>Student Web Developer</p>
+
+<h2>Projects</h2>
+
+<!-- ✅ DYNAMIC PROJECTS -->
+<div id="projectContainer"></div>
+
+<h2>Contact</h2>
+
+<form onsubmit="handleSubmit(event)">
+  <input type="text" placeholder="Name" required><br><br>
+  <input type="email" placeholder="Email" required><br><br>
+  <textarea placeholder="Message" required></textarea><br><br>
+  <button type="submit">Send</button>
+</form>
+
+<script>
+
+//////////////////////////////////////////////////////
+// 🔥 LOAD PROJECTS FROM BACKEND
+//////////////////////////////////////////////////////
+
+fetch("http://localhost:5000/projects")
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("projectContainer");
+
+    container.innerHTML = data.map((p, i) => `
+      <div class="project-card">
+        <h3>${p.title}</h3>
+        <p>${p.description}</p>
+        <p><b>Tech:</b> ${p.tech}</p>
+        <a href="${p.github}" target="_blank">GitHub</a>
+      </div>
+    `).join("");
+  });
+
+//////////////////////////////////////////////////////
+// 📩 CONTACT FORM (REAL)
+//////////////////////////////////////////////////////
+
+function handleSubmit(e) {
+  e.preventDefault();
+
+  const inputs = document.querySelectorAll("input");
+  const textarea = document.querySelector("textarea");
+
+  const name = inputs[0].value;
+  const email = inputs[1].value;
+  const message = textarea.value;
+
+  fetch("http://localhost:5000/contact", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ name, email, message })
+  })
+  .then(() => {
+    alert("Message sent!");
+    e.target.reset();
+  });
+}
+
+</script>
+
+</body>
+</html>
