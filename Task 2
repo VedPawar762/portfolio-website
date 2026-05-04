@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TaskFlow — Ved Pawar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0f0f13;--bg2:#16161d;--bg3:#1e1e28;--card:#22222e;--border:#2e2e3e;
+    --accent:#6c63ff;--accent2:#ff6584;--accent3:#43e97b;--accent4:#f7971e;
+    --text:#e8e8f0;--text2:#9090a8;--text3:#5a5a72;
+    --font:'DM Sans',sans-serif;--font2:'Space Grotesk',sans-serif;
+  }
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+  .app{display:flex;min-height:100vh}
+  .sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{padding:16px 24px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px}
+  .content{flex:1;padding:24px;overflow-y:auto;background:var(--bg)}
+  .logo{padding:20px 20px 12px;font-family:var(--font2);font-size:18px;font-weight:700;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px}
+  .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  .nav-section{padding:6px 12px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-top:8px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;margin:1px 8px;border-radius:8px;cursor:pointer;font-size:13.5px;color:var(--text2);transition:all .2s;user-select:none}
+  .nav-item:hover{background:var(--bg3);color:var(--text)}
+  .nav-item.active{background:rgba(108,99,255,.15);color:var(--accent)}
+  .nav-icon{width:16px;height:16px;opacity:.7;flex-shrink:0}
+  .nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;line-height:16px}
+  .sidebar-bottom{margin-top:auto;padding:16px;border-top:1px solid var(--border)}
+  .user-pill{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;transition:all .2s}
+  .user-pill:hover{background:var(--bg3)}
+  .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0}
+  .user-info{flex:1;overflow:hidden}
+  .user-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .user-role{font-size:11px;color:var(--text3)}
+  .search-box{flex:1;max-width:360px;position:relative}
+  .search-box input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px 8px 36px;font-size:13px;color:var(--text);font-family:var(--font);outline:none;transition:border .2s}
+  .search-box input::placeholder{color:var(--text3)}
+  .search-box input:focus{border-color:var(--accent)}
+  .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px}
+  .topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .icon-btn{width:34px;height:34px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--text2);transition:all .2s}
+  .icon-btn:hover{background:var(--border);color:var(--text)}
+  .notif-dot{position:relative}
+  .notif-dot::after{content:'';position:absolute;top:6px;right:6px;width:6px;height:6px;background:var(--accent2);border-radius:50%;border:2px solid var(--bg2)}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s;font-family:var(--font)}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:#7c74ff;transform:translateY(-1px)}
+  .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+  .btn-ghost:hover{background:var(--bg3);color:var(--text)}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s}
+  .stat-card:hover{transform:translateY(-2px);border-color:var(--accent)}
+  .stat-card::before{content:'';position:absolute;right:-20px;top:-20px;width:80px;height:80px;border-radius:50%;opacity:.1}
+  .stat-card:nth-child(1)::before{background:var(--accent)}
+  .stat-card:nth-child(2)::before{background:var(--accent3)}
+  .stat-card:nth-child(3)::before{background:var(--accent4)}
+  .stat-card:nth-child(4)::before{background:var(--accent2)}
+  .stat-label{font-size:11px;color:var(--text3);font-weight:500;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .stat-value{font-family:var(--font2);font-size:28px;font-weight:700;line-height:1}
+  .stat-sub{font-size:11px;color:var(--text3);margin-top:4px}
+  .stat-accent{color:var(--accent3);font-weight:600}
+  .tasks-title{font-family:var(--font2);font-size:16px;font-weight:600}
+  .filter-row{display:flex;gap:8px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+  .filter-btn{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);transition:all .2s;font-family:var(--font)}
+  .filter-btn.active,.filter-btn:hover{background:rgba(108,99,255,.15);border-color:var(--accent);color:var(--accent)}
+  .filter-sep{width:1px;height:18px;background:var(--border)}
+  .kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .column{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px;min-height:300px}
+  .col-header{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .col-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .col-title{font-size:13px;font-weight:600;flex:1}
+  .col-count{font-size:11px;background:var(--bg3);border:1px solid var(--border);padding:2px 8px;border-radius:10px;color:var(--text2)}
+  .col-add{cursor:pointer;color:var(--text3);font-size:16px;line-height:1;transition:color .2s;background:none;border:none;padding:0}
+  .col-add:hover{color:var(--accent)}
+  .task-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px;margin-bottom:10px;cursor:pointer;transition:all .25s;position:relative}
+  .task-card:hover{border-color:var(--accent);transform:translateX(2px)}
+  .task-card.done{opacity:.55}
+  .task-card.done .task-title{text-decoration:line-through;color:var(--text3)}
+  .task-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
+  .tag-bug{background:rgba(255,101,132,.15);color:#ff6584}
+  .tag-feat{background:rgba(108,99,255,.15);color:#8c85ff}
+  .tag-design{background:rgba(247,151,30,.15);color:#f7971e}
+  .tag-docs{background:rgba(67,233,123,.15);color:#43e97b}
+  .tag-devops{background:rgba(56,189,248,.15);color:#38bdf8}
+  .task-title{font-size:13.5px;font-weight:500;line-height:1.4;margin-bottom:10px;color:var(--text)}
+  .task-footer{display:flex;align-items:center;gap:6px}
+  .priority-dot{width:6px;height:6px;border-radius:50%}
+  .p-high{background:#ff6584}
+  .p-med{background:#f7971e}
+  .p-low{background:#43e97b}
+  .task-due{font-size:11px;color:var(--text3);margin-left:auto;display:flex;align-items:center;gap:3px}
+  .mini-avatar{width:20px;height:20px;border-radius:50%;border:2px solid var(--card);font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-left:-4px}
+  .task-check{position:absolute;top:12px;right:12px;width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s}
+  .task-check:hover{border-color:var(--accent3)}
+  .task-check.checked{background:var(--accent3);border-color:var(--accent3);color:#0f1a13}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:100%;max-width:520px;padding:24px;position:relative;animation:slideUp .3s ease}
+  @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .modal-title{font-family:var(--font2);font-size:17px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+  .close-btn{background:var(--bg3);border:1px solid var(--border);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:all .2s}
+  .close-btn:hover{background:var(--border);color:var(--text)}
+  .form-group{margin-bottom:16px}
+  .form-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px;display:block;letter-spacing:.3px}
+  .form-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text);font-family:var(--font);outline:none;transition:border .2s}
+  .form-input:focus{border-color:var(--accent)}
+  .form-input::placeholder{color:var(--text3)}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a5a72' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+  textarea.form-input{resize:vertical;min-height:80px;line-height:1.5}
+  .form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+  .progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+  .progress-fill{height:100%;border-radius:2px;transition:width .5s ease}
+  .live-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--accent3);font-weight:500;padding:3px 8px;background:rgba(67,233,123,.1);border-radius:20px}
+  .live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent3);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .panel-grid{display:grid;grid-template-columns:1fr 280px;gap:16px;margin-top:20px}
+  .side-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px}
+  .side-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:12px}
+  .activity-item{display:flex;gap:10px;margin-bottom:12px;align-items:flex-start}
+  .activity-icon{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px}
+  .activity-text{font-size:12px;color:var(--text2);line-height:1.5}
+  .activity-time{font-size:11px;color:var(--text3)}
+  ::-webkit-scrollbar{width:5px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+  .view-btns{display:flex;gap:4px}
+  .view-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s}
+  .view-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .view-btn:hover:not(.active){background:var(--bg3);color:var(--text)}
+  .task-list-view{display:none}
+  .task-list-view.visible{display:block}
+  .kanban.visible{display:grid}
+  .kanban.hidden{display:none}
+  .list-row{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+  .list-row:hover{border-color:var(--accent);transform:translateX(3px)}
+  .list-check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;cursor:pointer;transition:all .2s}
+  .list-check:hover,.list-check.checked{background:var(--accent3);border-color:var(--accent3);color:#0f1a13}
+  .list-title{flex:1;font-size:13px;font-weight:500}
+  .list-status{padding:3px 9px;border-radius:5px;font-size:11px;font-weight:600}
+  .s-todo{background:rgba(90,90,114,.2);color:var(--text3)}
+  .s-doing{background:rgba(108,99,255,.15);color:#8c85ff}
+  .s-done{background:rgba(67,233,123,.15);color:#43e97b}
+  .list-prio{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600}
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--accent3);border-radius:10px;padding:12px 16px;font-size:13px;display:none;align-items:center;gap:10px;z-index:200;min-width:220px}
+  .toast.show{display:flex;animation:fadeIn .3s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo"><span class="logo-dot"></span>TaskFlow</div>
+    <div class="nav-section">Workspace</div>
+    <div class="nav-item active" onclick="setNav(this,'board')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".7"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".7"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".4"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="setNav(this,'tasks')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      My Tasks <span class="nav-badge" id="tasknb">12</span>
+    </div>
+    <div class="nav-item" onclick="setNav(this,'calendar')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6.5h13" stroke="currentColor" stroke-width="1.5"/><path d="M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Calendar
+    </div>
+    <div class="nav-section">Projects</div>
+    <div class="nav-item" onclick="setNav(this,'proj1')"><span style="width:8px;height:8px;border-radius:2px;background:#6c63ff;flex-shrink:0;display:block"></span>Web Redesign</div>
+    <div class="nav-item" onclick="setNav(this,'proj2')"><span style="width:8px;height:8px;border-radius:2px;background:#f7971e;flex-shrink:0;display:block"></span>API Integration</div>
+    <div class="nav-item" onclick="setNav(this,'proj3')"><span style="width:8px;height:8px;border-radius:2px;background:#43e97b;flex-shrink:0;display:block"></span>Mobile App</div>
+    <div class="nav-section">Settings</div>
+    <div class="nav-item" onclick="setNav(this,'settings')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Settings
+    </div>
+    <div class="sidebar-bottom">
+      <div class="user-pill">
+        <div class="avatar">VP</div>
+        <div class="user-info"><div class="user-name">Ved Pawar</div><div class="user-role">Developer</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div style="font-family:var(--font2);font-size:15px;font-weight:600" id="page-title">Dashboard</div>
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input type="text" placeholder="Search tasks, projects..." id="searchInput" oninput="filterTasks()"/>
+      </div>
+      <div class="topbar-right">
+        <div class="live-pill"><span class="live-dot"></span>Live</div>
+        <div class="icon-btn notif-dot">🔔</div>
+        <div class="icon-btn">?</div>
+        <button class="btn btn-primary" onclick="openModal()">＋ New Task</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card" onclick="filterByStatus('all')">
+          <div class="stat-label">Total Tasks</div>
+          <div class="stat-value" id="st-total" style="color:var(--accent)">12</div>
+          <div class="stat-sub">↑ 3 this week</div>
+        </div>
+        <div class="stat-card" onclick="filterByStatus('done')">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value" id="st-done" style="color:var(--accent3)">4</div>
+          <div class="stat-sub"><span class="stat-accent">33%</span> completion rate</div>
+        </div>
+        <div class="stat-card" onclick="filterByStatus('doing')">
+          <div class="stat-label">In Progress</div>
+          <div class="stat-value" id="st-doing" style="color:var(--accent4)">5</div>
+          <div class="stat-sub">2 due today</div>
+        </div>
+        <div class="stat-card" onclick="filterByStatus('todo')">
+          <div class="stat-label">To Do</div>
+          <div class="stat-value" id="st-todo" style="color:var(--accent2)">3</div>
+          <div class="stat-sub">Next: Auth module</div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:13px;font-weight:500">Project Progress — Task Management App</div>
+          <div style="font-family:var(--font2);font-size:15px;font-weight:700;color:var(--accent3)" id="pct">33%</div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:33%;background:linear-gradient(90deg,var(--accent),var(--accent3))"></div></div>
+        <div style="display:flex;gap:16px;margin-top:10px">
+          <div style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--accent3);display:inline-block"></span>Done</div>
+          <div style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--accent4);display:inline-block"></span>In Progress</div>
+          <div style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--border);display:inline-block"></span>To Do</div>
+        </div>
+      </div>
+
+      <!-- Board Header -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+        <div class="tasks-title">Task Board</div>
+        <div class="filter-row" style="margin-bottom:0;flex:1">
+          <button class="filter-btn active" onclick="filterByPrio('all',this)">All</button>
+          <button class="filter-btn" onclick="filterByPrio('high',this)">🔴 High</button>
+          <button class="filter-btn" onclick="filterByPrio('med',this)">🟡 Medium</button>
+          <button class="filter-btn" onclick="filterByPrio('low',this)">🟢 Low</button>
+          <div class="filter-sep"></div>
+          <button class="filter-btn" onclick="filterByTag('bug',this)">Bug</button>
+          <button class="filter-btn" onclick="filterByTag('feat',this)">Feature</button>
+          <button class="filter-btn" onclick="filterByTag('design',this)">Design</button>
+        </div>
+        <div class="view-btns">
+          <button class="view-btn active" onclick="setView('kanban',this)" title="Kanban">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="0" y="0" width="4" height="14" rx="1" fill="currentColor"/><rect x="5" y="0" width="4" height="14" rx="1" fill="currentColor" opacity=".6"/><rect x="10" y="0" width="4" height="14" rx="1" fill="currentColor" opacity=".3"/></svg>
+          </button>
+          <button class="view-btn" onclick="setView('list',this)" title="List">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h10M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Kanban -->
+      <div class="kanban visible" id="kanban-view">
+        <div class="column">
+          <div class="col-header"><div class="col-dot" style="background:#5a5a72"></div><div class="col-title">To Do</div><div class="col-count" id="cnt-todo">3</div><button class="col-add" onclick="openModal('todo')">＋</button></div>
+          <div id="col-todo"></div>
+        </div>
+        <div class="column">
+          <div class="col-header"><div class="col-dot" style="background:var(--accent)"></div><div class="col-title">In Progress</div><div class="col-count" id="cnt-doing">5</div><button class="col-add" onclick="openModal('doing')">＋</button></div>
+          <div id="col-doing"></div>
+        </div>
+        <div class="column">
+          <div class="col-header"><div class="col-dot" style="background:var(--accent3)"></div><div class="col-title">Done</div><div class="col-count" id="cnt-done">4</div><button class="col-add" onclick="openModal('done')">＋</button></div>
+          <div id="col-done"></div>
+        </div>
+      </div>
+
+      <!-- List View -->
+      <div class="task-list-view" id="list-view"></div>
+
+      <!-- Bottom Panels -->
+      <div class="panel-grid">
+        <div class="side-panel"><div class="side-title">Team Members</div><div id="team-list"></div></div>
+        <div class="side-panel"><div class="side-title">Recent Activity</div><div id="activity-feed"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-title">New Task <button class="close-btn" onclick="closeModal()">✕</button></div>
+      <div class="form-group">
+        <label class="form-label">Task Title *</label>
+        <input class="form-input" id="t-title" placeholder="e.g. Implement login page"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" id="t-desc" placeholder="Add details..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-input form-select" id="t-status"><option value="todo">To Do</option><option value="doing">In Progress</option><option value="done">Done</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select class="form-input form-select" id="t-prio"><option value="high">🔴 High</option><option value="med">🟡 Medium</option><option value="low">🟢 Low</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tag</label>
+          <select class="form-input form-select" id="t-tag"><option value="feat">Feature</option><option value="bug">Bug</option><option value="design">Design</option><option value="docs">Docs</option><option value="devops">DevOps</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input class="form-input" type="date" id="t-due"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assign To</label>
+        <select class="form-input form-select" id="t-assign">
+          <option value="VP">Ved Pawar</option>
+          <option value="SA">Sarah A.</option>
+          <option value="MK">Mike K.</option>
+          <option value="LW">Lisa W.</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveTask()">Create Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"><span style="font-size:16px">✓</span><span id="toast-msg">Task created!</span></div>
+</div>
+
+<script>
+const AVATAR_COLORS = ['#6c63ff','#ff6584','#43e97b','#f7971e','#38bdf8'];
+
+let tasks = [
+  {id:1,title:'Set up user authentication with JWT',status:'done',prio:'high',tag:'feat',due:'2026-04-28',assign:'VP',done:true},
+  {id:2,title:'Design task card components',status:'done',prio:'med',tag:'design',due:'2026-04-30',assign:'SA',done:true},
+  {id:3,title:'Create task CRUD API endpoints',status:'done',prio:'high',tag:'feat',due:'2026-05-01',assign:'MK',done:true},
+  {id:4,title:'Fix login redirect bug',status:'done',prio:'high',tag:'bug',due:'2026-05-02',assign:'VP',done:true},
+  {id:5,title:'Implement WebSocket real-time updates',status:'doing',prio:'high',tag:'feat',due:'2026-05-06',assign:'VP',done:false},
+  {id:6,title:'Build responsive mobile layout',status:'doing',prio:'med',tag:'design',due:'2026-05-07',assign:'SA',done:false},
+  {id:7,title:'Set up CI/CD pipeline',status:'doing',prio:'high',tag:'devops',due:'2026-05-05',assign:'MK',done:false},
+  {id:8,title:'Write API documentation',status:'doing',prio:'low',tag:'docs',due:'2026-05-10',assign:'LW',done:false},
+  {id:9,title:'Optimize database queries',status:'doing',prio:'med',tag:'feat',due:'2026-05-08',assign:'MK',done:false},
+  {id:10,title:'Add user role management',status:'todo',prio:'high',tag:'feat',due:'2026-05-12',assign:'VP',done:false},
+  {id:11,title:'Implement task filtering & search',status:'todo',prio:'med',tag:'feat',due:'2026-05-14',assign:'SA',done:false},
+  {id:12,title:'Deploy to production server',status:'todo',prio:'high',tag:'devops',due:'2026-05-18',assign:'MK',done:false},
+];
+
+let nextId = 13;
+let activeFilter = {status:'all',prio:'all',tag:'all',search:''};
+let currentView = 'kanban';
+
+const team = [
+  {init:'VP',name:'Ved Pawar',role:'Developer',color:AVATAR_COLORS[0]},
+  {init:'SA',name:'Sarah A.',role:'UI/UX Design',color:AVATAR_COLORS[1]},
+  {init:'MK',name:'Mike K.',role:'Backend',color:AVATAR_COLORS[2]},
+  {init:'LW',name:'Lisa W.',role:'Tech Writer',color:AVATAR_COLORS[3]},
+];
+
+const activities = [
+  {icon:'✓',color:'#43e97b',bg:'rgba(67,233,123,.12)',text:'Fix login redirect bug marked done',time:'2m ago'},
+  {icon:'+',color:'#6c63ff',bg:'rgba(108,99,255,.12)',text:'New task: Deploy to production',time:'18m ago'},
+  {icon:'↗',color:'#f7971e',bg:'rgba(247,151,30,.12)',text:'WebSocket task moved to In Progress',time:'1h ago'},
+  {icon:'🙍',color:'#38bdf8',bg:'rgba(56,189,248,.12)',text:'Lisa W. joined the team',time:'3h ago'},
+];
+
+function getFiltered(){
+  return tasks.filter(t=>{
+    if(activeFilter.status!=='all'&&t.status!==activeFilter.status)return false;
+    if(activeFilter.prio!=='all'&&t.prio!==activeFilter.prio)return false;
+    if(activeFilter.tag!=='all'&&t.tag!==activeFilter.tag)return false;
+    if(activeFilter.search&&!t.title.toLowerCase().includes(activeFilter.search))return false;
+    return true;
+  });
+}
+
+function tagLabel(t){return{feat:'Feature',bug:'Bug',design:'Design',docs:'Docs',devops:'DevOps'}[t]||t}
+function prioClass(p){return{high:'p-high',med:'p-med',low:'p-low'}[p]}
+function statusClass(s){return{todo:'s-todo',doing:'s-doing',done:'s-done'}[s]}
+function statusLabel(s){return{todo:'To Do',doing:'In Progress',done:'Done'}[s]}
+function fmtDate(d){if(!d)return'';const p=d.split('-');return`${p[2]}/${p[1]}`}
+
+function renderCard(t){
+  const m=team.find(x=>x.init===t.assign);
+  return `<div class="task-card${t.done?' done':''}" id="tc${t.id}">
+    <div class="task-tag tag-${t.tag}">${tagLabel(t.tag)}</div>
+    <div class="task-check${t.done?' checked':''}" onclick="toggleDone(${t.id},event)">${t.done?'✓':''}</div>
+    <div class="task-title">${t.title}</div>
+    <div class="task-footer">
+      <span class="priority-dot ${prioClass(t.prio)}"></span>
+      <span class="mini-avatar" style="background:${m?.color||'#6c63ff'};color:#fff;margin-left:4px">${t.assign}</span>
+      ${t.due?`<span class="task-due">📅 ${fmtDate(t.due)}</span>`:''}
+    </div>
+  </div>`;
+}
+
+function renderListRow(t){
+  const m=team.find(x=>x.init===t.assign);
+  return `<div class="list-row">
+    <div class="list-check${t.done?' checked':''}" onclick="toggleDone(${t.id},event)">${t.done?'✓':''}</div>
+    <span class="list-prio ${prioClass(t.prio)}"></span>
+    <div class="list-title" style="${t.done?'text-decoration:line-through;color:var(--text3)':''}">${t.title}</div>
+    <span class="chip tag-${t.tag}">${tagLabel(t.tag)}</span>
+    <span class="list-status ${statusClass(t.status)}">${statusLabel(t.status)}</span>
+    <div style="background:${m?.color||'#6c63ff'};color:#fff;border-radius:50%;font-size:9px;font-weight:600;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0">${t.assign}</div>
+    ${t.due?`<span style="font-size:11px;color:var(--text3)">📅 ${fmtDate(t.due)}</span>`:''}
+  </div>`;
+}
+
+function render(){
+  const filtered=getFiltered();
+  if(currentView==='kanban'){
+    ['todo','doing','done'].forEach(s=>{
+      const col=document.getElementById(`col-${s}`);
+      const items=filtered.filter(t=>t.status===s);
+      col.innerHTML=items.length?items.map(renderCard).join(''):`<div style="text-align:center;padding:24px 0;color:var(--text3);font-size:12px">No tasks here</div>`;
+      document.getElementById(`cnt-${s}`).textContent=items.length;
+    });
+  } else {
+    const lv=document.getElementById('list-view');
+    lv.innerHTML=filtered.length?filtered.map(renderListRow).join(''):`<div style="text-align:center;padding:40px;color:var(--text3)">No tasks found</div>`;
+  }
+  updateStats();
+}
+
+function updateStats(){
+  const done=tasks.filter(t=>t.done).length;
+  document.getElementById('st-total').textContent=tasks.length;
+  document.getElementById('st-done').textContent=done;
+  document.getElementById('st-doing').textContent=tasks.filter(t=>t.status==='doing'&&!t.done).length;
+  document.getElementById('st-todo').textContent=tasks.filter(t=>t.status==='todo').length;
+  const pct=Math.round(done/tasks.length*100);
+  document.getElementById('pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('tasknb').textContent=tasks.filter(t=>!t.done).length;
+}
+
+function toggleDone(id,e){
+  e.stopPropagation();
+  const t=tasks.find(x=>x.id===id);
+  if(!t)return;
+  t.done=!t.done;t.status=t.done?'done':'todo';
+  render();showToast(t.done?'✓ Task completed!':'Task reopened');
+}
+
+function openModal(status='todo'){
+  document.getElementById('t-status').value=status;
+  document.getElementById('t-title').value='';
+  document.getElementById('t-desc').value='';
+  document.getElementById('t-prio').value='med';
+  document.getElementById('t-tag').value='feat';
+  document.getElementById('t-due').value='';
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('t-title').focus(),100);
+}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+
+function saveTask(){
+  const title=document.getElementById('t-title').value.trim();
+  if(!title){document.getElementById('t-title').style.borderColor='var(--accent2)';return;}
+  document.getElementById('t-title').style.borderColor='';
+  const t={
+    id:nextId++,title,
+    status:document.getElementById('t-status').value,
+    prio:document.getElementById('t-prio').value,
+    tag:document.getElementById('t-tag').value,
+    due:document.getElementById('t-due').value,
+    assign:document.getElementById('t-assign').value,
+    done:document.getElementById('t-status').value==='done'
+  };
+  tasks.unshift(t);closeModal();render();showToast('✓ Task created!');
+}
+
+function filterByStatus(s){activeFilter.status=s;render()}
+function filterByPrio(p,btn){
+  activeFilter.prio=p;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');render();
+}
+function filterByTag(tag,btn){
+  if(activeFilter.tag===tag){activeFilter.tag='all';btn.classList.remove('active');}
+  else{activeFilter.tag=tag;btn.classList.add('active');}
+  render();
+}
+function filterTasks(){activeFilter.search=document.getElementById('searchInput').value.toLowerCase();render()}
+
+function setView(v,btn){
+  currentView=v;
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  const kb=document.getElementById('kanban-view'),lv=document.getElementById('list-view');
+  if(v==='kanban'){kb.classList.remove('hidden');kb.classList.add('visible');lv.classList.remove('visible');}
+  else{kb.classList.add('hidden');kb.classList.remove('visible');lv.classList.add('visible');}
+  render();
+}
+
+function setNav(el,page){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active');
+  const titles={board:'Dashboard',tasks:'My Tasks',calendar:'Calendar',proj1:'Web Redesign',proj2:'API Integration',proj3:'Mobile App',settings:'Settings'};
+  document.getElementById('page-title').textContent=titles[page]||page;
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function renderTeam(){
+  document.getElementById('team-list').innerHTML=team.map(m=>{
+    const mt=tasks.filter(t=>t.assign===m.init);
+    const done=mt.filter(t=>t.done).length;
+    const pct=mt.length?Math.round(done/mt.length*100):0;
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div style="width:34px;height:34px;border-radius:50%;background:${m.color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0">${m.init}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${m.name}</div>
+        <div style="font-size:11px;color:var(--text3)">${m.role} · ${mt.length} tasks</div>
+        <div class="progress-bar" style="margin-top:4px"><div class="progress-fill" style="width:${pct}%;background:${m.color}"></div></div>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text2)">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderActivity(){
+  document.getElementById('activity-feed').innerHTML=activities.map(a=>`
+    <div class="activity-item">
+      <div class="activity-icon" style="background:${a.bg};color:${a.color}">${a.icon}</div>
+      <div><div class="activity-text">${a.text}</div><div class="activity-time">${a.time}</div></div>
+    </div>`).join('');
+}
+
+// Init
+render();
+renderTeam();
+renderActivity();
+
+// Keyboard shortcuts: N = new task, Esc = close modal
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeModal();
+  if(e.key==='n'&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))openModal();
+});
+</script>
+</body>
+</html>
