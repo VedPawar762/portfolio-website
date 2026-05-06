@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ink&Quill — Blog Platform</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#1a1208;--paper:#faf7f2;--cream:#f0ebe0;--gold:#c8902a;--gold-light:#e8c97a;
+    --muted:#7a6e60;--border:#ddd5c4;--white:#fff;--danger:#c0392b;--success:#2d7a4f;
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh}
+
+  /* NAV */
+  .nav{background:var(--white);border-bottom:1.5px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+  .nav-brand{font-family:'Playfair Display',serif;font-size:22px;color:var(--ink);letter-spacing:-0.5px}
+  .nav-brand span{color:var(--gold)}
+  .nav-right{display:flex;align-items:center;gap:12px}
+  .btn{border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;border-radius:6px;transition:all .18s}
+  .btn-ghost{background:transparent;color:var(--muted);padding:7px 14px}
+  .btn-ghost:hover{background:var(--cream);color:var(--ink)}
+  .btn-gold{background:var(--gold);color:#fff;padding:8px 18px;font-weight:500}
+  .btn-gold:hover{background:#a87020}
+  .btn-sm{font-size:13px;padding:5px 13px}
+  .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--muted);padding:6px 14px}
+  .btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+  .btn-danger{background:#fff0ee;color:var(--danger);border:1.5px solid #f5c4b9;padding:5px 12px;font-size:12px}
+  .btn-danger:hover{background:#fde0db}
+  .avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:13px;flex-shrink:0}
+
+  /* LAYOUT */
+  .page{display:none;animation:fadeIn .25s ease}
+  .page.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  /* AUTH MODAL */
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:200;align-items:center;justify-content:center}
+  .modal-bg.open{display:flex}
+  .modal{background:#fff;border-radius:14px;padding:2rem;width:380px;max-width:92vw;position:relative}
+  .modal h2{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:1.2rem}
+  .modal-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+  .field{margin-bottom:1rem}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px;font-weight:500}
+  .field input,.field textarea,.field select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--paper);color:var(--ink);outline:none;transition:border .15s}
+  .field input:focus,.field textarea:focus{border-color:var(--gold)}
+  .field textarea{resize:vertical;min-height:90px}
+  .auth-switch{text-align:center;margin-top:1rem;font-size:13px;color:var(--muted)}
+  .auth-switch a{color:var(--gold);cursor:pointer;text-decoration:none;font-weight:500}
+  .error-msg{color:var(--danger);font-size:13px;margin-top:-8px;margin-bottom:8px;display:none}
+
+  /* HOME */
+  .hero{background:linear-gradient(135deg,#1a1208 60%,#2d1e0a);color:#fff;padding:3.5rem 2rem 2.5rem;text-align:center}
+  .hero h1{font-family:'Playfair Display',serif;font-size:40px;line-height:1.2;margin-bottom:.75rem}
+  .hero h1 em{color:var(--gold-light);font-style:italic}
+  .hero p{color:#c5b89a;font-size:16px;max-width:460px;margin:0 auto 1.5rem}
+  .hero-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+  .main-wrap{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+  .section-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--ink);margin-bottom:1.2rem;display:flex;align-items:center;gap:10px}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+  .posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem}
+  .post-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:box-shadow .18s,transform .18s}
+  .post-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.10);transform:translateY(-2px)}
+  .post-card-body{padding:1.2rem}
+  .post-tag{display:inline-block;background:var(--cream);color:var(--gold);font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px;margin-bottom:.7rem;letter-spacing:.3px;text-transform:uppercase}
+  .post-card h3{font-family:'Playfair Display',serif;font-size:17px;line-height:1.35;margin-bottom:.5rem;color:var(--ink)}
+  .post-card p{font-size:13px;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .post-card-footer{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.2rem;border-top:1px solid var(--border);background:var(--paper)}
+  .post-meta{display:flex;align-items:center;gap:7px}
+  .post-meta .name{font-size:12px;font-weight:500;color:var(--ink)}
+  .post-meta .date{font-size:11px;color:var(--muted)}
+  .post-stats{font-size:12px;color:var(--muted);display:flex;gap:10px}
+  .post-stats span{display:flex;align-items:center;gap:3px}
+  .like-btn{background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:2px 6px;border-radius:6px;transition:.15s}
+  .like-btn:hover,.like-btn.liked{color:#e74c3c}
+  .like-btn.liked{background:#fff0ee}
+
+  /* SINGLE POST */
+  .post-detail{max-width:720px;margin:0 auto;padding:2rem 1.5rem}
+  .back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;margin-bottom:1.5rem;padding:0;font-family:'DM Sans',sans-serif}
+  .back-btn:hover{color:var(--ink)}
+  .post-detail h1{font-family:'Playfair Display',serif;font-size:32px;line-height:1.25;margin-bottom:1rem}
+  .post-author-bar{display:flex;align-items:center;justify-content:space-between;padding:.9rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:1.5rem}
+  .post-body{font-size:16px;line-height:1.85;color:#2d2620}
+  .post-body p{margin-bottom:1rem}
+  .post-actions{display:flex;gap:10px;margin:1.5rem 0;padding:1rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+
+  /* COMMENTS */
+  .comments-section{margin-top:2rem}
+  .comments-section h3{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:1rem}
+  .comment-form{background:#fff;border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1.5rem}
+  .comment{display:flex;gap:12px;margin-bottom:1.2rem;padding-bottom:1.2rem;border-bottom:1px solid var(--border)}
+  .comment:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .comment-content{flex:1}
+  .comment-header{display:flex;align-items:center;gap:8px;margin-bottom:.4rem}
+  .comment-name{font-size:14px;font-weight:500}
+  .comment-date{font-size:12px;color:var(--muted)}
+  .comment-text{font-size:14px;line-height:1.65;color:#3d3128}
+  .no-posts{text-align:center;padding:3rem 1rem;color:var(--muted)}
+
+  /* CREATE POST */
+  .create-wrap{max-width:680px;margin:0 auto;padding:2rem 1.5rem}
+  .create-wrap h2{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:1.5rem}
+  .tag-select{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+  .tag-chip{padding:5px 14px;border-radius:99px;border:1.5px solid var(--border);background:#fff;font-size:12px;cursor:pointer;transition:.15s;color:var(--muted)}
+  .tag-chip:hover,.tag-chip.sel{border-color:var(--gold);background:#fffaf0;color:var(--gold)}
+
+  /* PROFILE */
+  .profile-wrap{max-width:720px;margin:0 auto;padding:2rem 1.5rem}
+  .profile-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.5rem;display:flex;align-items:center;gap:1.2rem;margin-bottom:1.5rem}
+  .profile-avatar{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;flex-shrink:0}
+  .profile-info h2{font-family:'Playfair Display',serif;font-size:22px}
+  .profile-info p{color:var(--muted);font-size:14px;margin-top:.25rem}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a1208;color:#fff;padding:.8rem 1.3rem;border-radius:10px;font-size:14px;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s;pointer-events:none}
+  .toast.show{transform:translateY(0);opacity:1}
+  .toast.success{background:var(--success)}
+  .toast.error{background:var(--danger)}
+
+  /* NAV TABS */
+  .nav-tabs{display:flex;gap:4px;padding:0 1.5rem;background:var(--white);border-bottom:1px solid var(--border);overflow-x:auto}
+  .nav-tab{background:none;border:none;cursor:pointer;padding:.7rem 1rem;font-size:14px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:.15s}
+  .nav-tab.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:500}
+  .nav-tab:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-brand">Ink<span>&</span>Quill</div>
+  <div class="nav-right" id="nav-right">
+    <button class="btn btn-ghost" onclick="openModal('login')">Sign in</button>
+    <button class="btn btn-gold" onclick="openModal('register')">Get Started</button>
+  </div>
+</div>
+
+<div id="tabs-bar" style="display:none">
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="gotoPage('home',this)">
+      <i class="ti ti-home"></i> Home
+    </button>
+    <button class="nav-tab" onclick="gotoPage('create',this)">
+      <i class="ti ti-pencil"></i> Write Post
+    </button>
+    <button class="nav-tab" onclick="gotoPage('profile',this)">
+      <i class="ti ti-user"></i> My Profile
+    </button>
+    <button class="nav-tab" style="margin-left:auto;color:var(--muted)" onclick="logout()">
+      <i class="ti ti-logout"></i> Logout
+    </button>
+  </div>
+</div>
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <h1>Read. Write. <em>Inspire.</em></h1>
+    <p>A platform where ideas find their voice — discover stories, share your thoughts, and build community.</p>
+    <div class="hero-actions">
+      <button class="btn btn-gold" onclick="openModal('register')">Start Writing Today</button>
+      <button class="btn" style="background:rgba(255,255,255,.12);color:#fff;padding:8px 18px;border-radius:6px" onclick="scrollTo(0,340)">Explore Posts</button>
+    </div>
+  </div>
+  <div class="main-wrap">
+    <div class="section-title">Latest Stories</div>
+    <div class="posts-grid" id="posts-grid"></div>
+  </div>
+</div>
+
+<!-- SINGLE POST PAGE -->
+<div class="page" id="page-post">
+  <div class="post-detail">
+    <button class="back-btn" onclick="gotoPage('home')">
+      <i class="ti ti-arrow-left"></i> Back to Home
+    </button>
+    <div id="post-detail-content"></div>
+  </div>
+</div>
+
+<!-- CREATE POST -->
+<div class="page" id="page-create">
+  <div class="create-wrap">
+    <h2>✍️ New Story</h2>
+    <div class="field">
+      <label>Title</label>
+      <input type="text" id="new-title" placeholder="Give your story a title...">
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <div class="tag-select" id="tag-select">
+        <div class="tag-chip sel" onclick="selectTag(this,'Technology')">Technology</div>
+        <div class="tag-chip" onclick="selectTag(this,'Lifestyle')">Lifestyle</div>
+        <div class="tag-chip" onclick="selectTag(this,'Science')">Science</div>
+        <div class="tag-chip" onclick="selectTag(this,'Culture')">Culture</div>
+        <div class="tag-chip" onclick="selectTag(this,'Travel')">Travel</div>
+        <div class="tag-chip" onclick="selectTag(this,'Health')">Health</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Your Story</label>
+      <textarea id="new-body" rows="10" placeholder="Tell your story..."></textarea>
+    </div>
+    <button class="btn btn-gold" onclick="publishPost()" style="width:100%;padding:12px;font-size:15px">
+      <i class="ti ti-send"></i> Publish Story
+    </button>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="page-profile">
+  <div class="profile-wrap">
+    <div class="profile-card" id="profile-card"></div>
+    <div class="section-title">My Posts</div>
+    <div id="my-posts-grid" class="posts-grid"></div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-bg" id="modal-login">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('login')">×</button>
+    <h2>Welcome back</h2>
+    <div class="field"><label>Email</label><input type="email" id="li-email" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input type="password" id="li-password" placeholder="••••••••"></div>
+    <p class="error-msg" id="li-error">Invalid email or password.</p>
+    <button class="btn btn-gold" style="width:100%;padding:11px" onclick="login()">Sign In</button>
+    <p class="auth-switch">No account? <a onclick="switchModal('login','register')">Create one</a></p>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="modal-bg" id="modal-register">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('register')">×</button>
+    <h2>Join Ink&Quill</h2>
+    <div class="field"><label>Name</label><input type="text" id="reg-name" placeholder="Your full name"></div>
+    <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input type="password" id="reg-password" placeholder="Min 6 characters"></div>
+    <p class="error-msg" id="reg-error"></p>
+    <button class="btn btn-gold" style="width:100%;padding:11px" onclick="register()">Create Account</button>
+    <p class="auth-switch">Already have one? <a onclick="switchModal('register','login')">Sign in</a></p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let users = JSON.parse(localStorage.getItem('iq_users')||'[]');
+let posts = JSON.parse(localStorage.getItem('iq_posts')||'null') || [
+  {
+    id:1,
+    title:"The Future of AI is More Human Than You Think",
+    body:"Artificial intelligence often gets portrayed as cold, mechanical, and fundamentally alien to human experience. But the reality unfolding in research labs around the world tells a very different story — one where machines learn to understand context, nuance, and even emotion.\n\nThe breakthroughs of the past few years have been staggering. Language models can now write poetry, debug code, and hold nuanced conversations. But what truly excites researchers isn't raw capability — it's alignment with human values and genuine helpfulness.\n\nThe next frontier isn't making AI smarter. It's making AI wiser.",
+    author:"Aria Patel",authorId:0,tag:"Technology",date:"May 3, 2026",likes:[],
+    comments:[
+      {user:"Sam K.",uid:0,text:"Brilliant perspective! The wisdom angle is something most articles miss.",date:"May 4, 2026"},
+      {user:"Leila R.",uid:0,text:"Really resonated with me. Looking forward to more articles on this topic.",date:"May 5, 2026"}
+    ]
+  },
+  {
+    id:2,
+    title:"Why Slow Travel Changed My Relationship with the World",
+    body:"There was a time when I thought travel meant ticking cities off a list. Rome on Tuesday, Prague on Thursday, Vienna by the weekend. I returned home exhausted and somehow emptier than I'd left.\n\nThat all changed during a three-month stay in a small fishing village in Portugal. No agenda. No tourist map. Just days that unfolded at the pace of the tides.\n\nI learned the baker's name, the story behind the old chapel, and how to say 'the light is beautiful this evening' in Portuguese. These moments, small and unremarkable by any travel magazine standard, became the most meaningful of my life.",
+    author:"Marco Silveira",authorId:0,tag:"Travel",date:"May 1, 2026",likes:[],
+    comments:[{user:"Yuki T.",uid:0,text:"This is exactly how I feel. Quality over quantity, always.",date:"May 2, 2026"}]
+  },
+  {
+    id:3,
+    title:"The Science of Sleep: What Your Body Does at 3 AM",
+    body:"While you drift through dreams, your body is running its most sophisticated maintenance program. At 3 AM — the typical depth of your sleep cycle — remarkable things happen that most people never consider.\n\nYour glymphatic system, a waste-clearance network unique to the brain, becomes dramatically more active. It flushes out proteins associated with Alzheimer's disease and other neurological conditions. Sleep isn't rest — it's active, critical maintenance.\n\nMeanwhile, your immune system releases cytokines that fight infection and inflammation. Your muscles repair microtears from the day's activity. Growth hormone reaches its daily peak.",
+    author:"Dr. Nora James",authorId:0,tag:"Health",date:"Apr 29, 2026",likes:[],comments:[]
+  }
+];
+let currentUser = null;
+let currentPostId = null;
+let selectedTag = 'Technology';
+
+function save(){
+  localStorage.setItem('iq_users', JSON.stringify(users));
+  localStorage.setItem('iq_posts', JSON.stringify(posts));
+}
+
+function toast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + (type||''); t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function openModal(m){ document.getElementById('modal-'+m).classList.add('open') }
+function closeModal(m){ document.getElementById('modal-'+m).classList.remove('open') }
+function switchModal(a,b){ closeModal(a); openModal(b) }
+
+function avatarColor(name){
+  const c = ['#c8902a','#2d7a4f','#3a6fa8','#8b4a8b','#c45c2a','#2a8a8a'];
+  let h = 0; for(let ch of name) h = (h*31 + ch.charCodeAt(0)) % c.length;
+  return c[h];
+}
+function initials(name){ return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) }
+
+function gotoPage(p, tabEl){
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  if(tabEl) tabEl.classList.add('active');
+  if(p === 'home') renderPosts();
+  if(p === 'profile') renderProfile();
+}
+
+function login(){
+  const email = document.getElementById('li-email').value.trim();
+  const pass = document.getElementById('li-password').value;
+  const u = users.find(u => u.email === email && u.password === pass);
+  const err = document.getElementById('li-error');
+  if(!u){ err.style.display='block'; return; }
+  err.style.display = 'none';
+  currentUser = u;
+  afterLogin();
+  closeModal('login');
+  toast('Welcome back, ' + u.name + '! 👋', 'success');
+}
+
+function register(){
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-password').value;
+  const err = document.getElementById('reg-error');
+  if(!name || !email || !pass){ err.textContent='All fields required.'; err.style.display='block'; return; }
+  if(pass.length < 6){ err.textContent='Password must be 6+ characters.'; err.style.display='block'; return; }
+  if(users.find(u => u.email === email)){ err.textContent='Email already registered.'; err.style.display='block'; return; }
+  const u = { id: Date.now(), name, email, password: pass };
+  users.push(u); save();
+  currentUser = u;
+  afterLogin();
+  closeModal('register');
+  toast('Account created! Welcome, ' + name + ' 🎉', 'success');
+}
+
+function afterLogin(){
+  document.getElementById('nav-right').innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="avatar" style="background:${avatarColor(currentUser.name)};color:#fff">${initials(currentUser.name)}</div>
+      <span style="font-size:14px;font-weight:500">${currentUser.name}</span>
+    </div>`;
+  document.getElementById('tabs-bar').style.display = 'block';
+  renderPosts();
+}
+
+function logout(){
+  currentUser = null;
+  document.getElementById('nav-right').innerHTML = `
+    <button class="btn btn-ghost" onclick="openModal('login')">Sign in</button>
+    <button class="btn btn-gold" onclick="openModal('register')">Get Started</button>`;
+  document.getElementById('tabs-bar').style.display = 'none';
+  gotoPage('home');
+  toast('Signed out. Come back soon!');
+}
+
+function renderPosts(){
+  const grid = document.getElementById('posts-grid');
+  if(!posts.length){ grid.innerHTML='<div class="no-posts" style="grid-column:1/-1"><i class="ti ti-file-off" style="font-size:40px;display:block;margin-bottom:.5rem"></i>No posts yet. Be the first to write!</div>'; return; }
+  grid.innerHTML = posts.map(p => `
+    <div class="post-card" onclick="openPost(${p.id})">
+      <div class="post-card-body">
+        <span class="post-tag">${p.tag}</span>
+        <h3>${p.title}</h3>
+        <p>${p.body.slice(0,120)}...</p>
+      </div>
+      <div class="post-card-footer">
+        <div class="post-meta">
+          <div class="avatar" style="width:26px;height:26px;font-size:11px;background:${avatarColor(p.author)};color:#fff">${initials(p.author)}</div>
+          <div><div class="name">${p.author}</div><div class="date">${p.date}</div></div>
+        </div>
+        <div class="post-stats">
+          <span><i class="ti ti-heart"></i> ${p.likes.length}</span>
+          <span><i class="ti ti-message-circle"></i> ${p.comments.length}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openPost(id){
+  currentPostId = id;
+  const p = posts.find(x => x.id === id);
+  if(!p) return;
+  const liked = currentUser && p.likes.includes(currentUser.id);
+  const isOwner = currentUser && currentUser.id === p.authorId;
+
+  const commentsHtml = p.comments.length
+    ? p.comments.map((c,i) => `
+      <div class="comment">
+        <div class="avatar" style="width:34px;height:34px;font-size:13px;background:${avatarColor(c.user)};color:#fff;flex-shrink:0">${initials(c.user)}</div>
+        <div class="comment-content">
+          <div class="comment-header">
+            <span class="comment-name">${c.user}</span>
+            <span class="comment-date">${c.date}</span>
+            ${currentUser && currentUser.id === c.uid ? `<button class="btn btn-danger btn-sm" onclick="deleteComment(${id},${i})">Delete</button>` : ''}
+          </div>
+          <p class="comment-text">${c.text}</p>
+        </div>
+      </div>`).join('')
+    : '<p style="color:var(--muted);font-size:14px">No comments yet. Be the first!</p>';
+
+  const commentInput = currentUser
+    ? `<div class="comment-form">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div class="avatar" style="width:34px;height:34px;font-size:13px;background:${avatarColor(currentUser.name)};color:#fff;flex-shrink:0">${initials(currentUser.name)}</div>
+          <div style="flex:1">
+            <textarea id="new-comment" rows="3" placeholder="Share your thoughts..." style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;resize:vertical;outline:none;background:var(--paper)"></textarea>
+            <button class="btn btn-gold btn-sm" style="margin-top:6px" onclick="addComment(${id})">Post Comment</button>
+          </div>
+        </div>
+      </div>`
+    : `<p style="color:var(--muted);font-size:14px;margin-bottom:1rem"><a onclick="openModal('login')" style="color:var(--gold);cursor:pointer">Sign in</a> to leave a comment.</p>`;
+
+  document.getElementById('post-detail-content').innerHTML = `
+    <span class="post-tag">${p.tag}</span>
+    <h1 style="margin-top:.5rem">${p.title}</h1>
+    <div class="post-author-bar">
+      <div class="post-meta">
+        <div class="avatar" style="width:38px;height:38px;font-size:14px;background:${avatarColor(p.author)};color:#fff">${initials(p.author)}</div>
+        <div><div class="name" style="font-size:15px;font-weight:500">${p.author}</div><div class="date" style="font-size:12px;color:var(--muted)">${p.date}</div></div>
+      </div>
+      ${isOwner ? `<button class="btn btn-danger" onclick="deletePost(${p.id})"><i class="ti ti-trash"></i> Delete Post</button>` : ''}
+    </div>
+    <div class="post-body">${p.body.split('\n\n').map(pp=>`<p>${pp}</p>`).join('')}</div>
+    <div class="post-actions">
+      <button class="like-btn ${liked?'liked':''}" id="like-btn-${id}" onclick="toggleLike(${id})">
+        <i class="ti ti-heart${liked?'-filled':''}"></i> ${p.likes.length} ${p.likes.length===1?'Like':'Likes'}
+      </button>
+      <span style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:4px">
+        <i class="ti ti-message-circle"></i> ${p.comments.length} ${p.comments.length===1?'Comment':'Comments'}
+      </span>
+    </div>
+    <div class="comments-section">
+      <h3>Comments (${p.comments.length})</h3>
+      ${commentInput}
+      ${commentsHtml}
+    </div>`;
+
+  gotoPage('post');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+}
+
+function toggleLike(id){
+  if(!currentUser){ toast('Sign in to like posts 💛'); openModal('login'); return; }
+  const p = posts.find(x => x.id === id);
+  const idx = p.likes.indexOf(currentUser.id);
+  if(idx > -1) p.likes.splice(idx,1);
+  else p.likes.push(currentUser.id);
+  save(); openPost(id);
+}
+
+function addComment(id){
+  if(!currentUser) return;
+  const txt = document.getElementById('new-comment').value.trim();
+  if(!txt){ toast('Please write something first.','error'); return; }
+  const p = posts.find(x => x.id === id);
+  const now = new Date();
+  const d = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  p.comments.push({user:currentUser.name, uid:currentUser.id, text:txt, date:d});
+  save(); openPost(id); toast('Comment posted! 💬','success');
+}
+
+function deleteComment(postId, idx){
+  const p = posts.find(x => x.id === postId);
+  p.comments.splice(idx,1); save(); openPost(postId); toast('Comment removed.');
+}
+
+function deletePost(id){
+  if(!confirm('Delete this post? This cannot be undone.')) return;
+  posts = posts.filter(p => p.id !== id); save();
+  gotoPage('home'); renderPosts(); toast('Post deleted.','error');
+}
+
+function selectTag(el, tag){
+  selectedTag = tag;
+  document.querySelectorAll('.tag-chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function publishPost(){
+  if(!currentUser){ openModal('login'); return; }
+  const title = document.getElementById('new-title').value.trim();
+  const body = document.getElementById('new-body').value.trim();
+  if(!title || !body){ toast('Title and body are required.','error'); return; }
+  const now = new Date();
+  const d = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const p = {id:Date.now(), title, body, author:currentUser.name, authorId:currentUser.id, tag:selectedTag, date:d, likes:[], comments:[]};
+  posts.unshift(p); save();
+  document.getElementById('new-title').value = '';
+  document.getElementById('new-body').value = '';
+  toast('Story published! 🚀','success');
+  gotoPage('home');
+  document.querySelectorAll('.nav-tab')[0].classList.add('active');
+  renderPosts();
+}
+
+function renderProfile(){
+  if(!currentUser) return;
+  const col = avatarColor(currentUser.name);
+  document.getElementById('profile-card').innerHTML = `
+    <div class="profile-avatar" style="background:${col};color:#fff">${initials(currentUser.name)}</div>
+    <div class="profile-info">
+      <h2>${currentUser.name}</h2>
+      <p><i class="ti ti-mail" style="font-size:14px;vertical-align:-2px"></i> ${currentUser.email}</p>
+    </div>`;
+  const myPosts = posts.filter(p => p.authorId === currentUser.id);
+  const grid = document.getElementById('my-posts-grid');
+  if(!myPosts.length){ grid.innerHTML='<p style="color:var(--muted);font-size:14px">You haven\'t published any posts yet.</p>'; return; }
+  grid.innerHTML = myPosts.map(p => `
+    <div class="post-card" onclick="openPost(${p.id})">
+      <div class="post-card-body">
+        <span class="post-tag">${p.tag}</span>
+        <h3>${p.title}</h3>
+        <p>${p.body.slice(0,100)}...</p>
+      </div>
+      <div class="post-card-footer">
+        <div class="post-stats" style="font-size:13px">
+          <span><i class="ti ti-heart"></i> ${p.likes.length}</span>
+          <span><i class="ti ti-message-circle"></i> ${p.comments.length}</span>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deletePost(${p.id})"><i class="ti ti-trash"></i> Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+renderPosts();
+</script>
+</body>
+</html>
