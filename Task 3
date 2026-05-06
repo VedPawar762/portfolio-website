@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ShopBhārat — Indian E-Commerce</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --primary:#1a1a2e;--accent:#e94560;--gold:#f5a623;--light:#f8f4ef;--white:#ffffff;
+    --card-bg:#ffffff;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;
+    --success:#10b981;--shadow:0 4px 24px rgba(26,26,46,0.10);
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);min-height:100vh;}
+
+  /* NAVBAR */
+  nav{background:var(--primary);color:#fff;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+  .logo{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;letter-spacing:-0.5px;color:#fff;}
+  .logo span{color:var(--accent);}
+  .nav-links{display:flex;gap:1.5rem;align-items:center;}
+  .nav-links a{color:rgba(255,255,255,0.75);text-decoration:none;font-size:0.88rem;font-weight:500;cursor:pointer;transition:color 0.2s;}
+  .nav-links a:hover,.nav-links a.active{color:#fff;}
+  .nav-right{display:flex;align-items:center;gap:1rem;}
+  .cart-btn{background:var(--accent);color:#fff;border:none;padding:0.45rem 1.1rem;border-radius:50px;font-size:0.85rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.4rem;transition:transform 0.15s,background 0.2s;}
+  .cart-btn:hover{background:#c73652;transform:scale(1.04);}
+  .badge{background:var(--gold);color:#fff;border-radius:50%;width:18px;height:18px;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,var(--primary) 60%,#2d2d5e 100%);color:#fff;padding:4.5rem 2rem 3.5rem;text-align:center;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+  .hero-badge{display:inline-block;background:rgba(229,69,96,0.25);color:var(--accent);border:1px solid var(--accent);border-radius:50px;padding:0.3rem 1rem;font-size:0.78rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:1.2rem;}
+  .hero h1{font-family:'Playfair Display',serif;font-size:3.2rem;font-weight:900;line-height:1.15;margin-bottom:1rem;}
+  .hero h1 span{color:var(--gold);}
+  .hero p{font-size:1.05rem;color:rgba(255,255,255,0.72);max-width:500px;margin:0 auto 2rem;}
+  .hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+  .btn-primary{background:var(--accent);color:#fff;border:none;padding:0.75rem 2rem;border-radius:50px;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .btn-primary:hover{background:#c73652;transform:translateY(-2px);}
+  .btn-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,0.4);padding:0.75rem 2rem;border-radius:50px;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .btn-outline:hover{border-color:#fff;background:rgba(255,255,255,0.08);}
+
+  /* STATS BAR */
+  .stats-bar{background:var(--white);border-bottom:1px solid var(--border);display:flex;justify-content:center;gap:3rem;padding:1rem 2rem;flex-wrap:wrap;}
+  .stat{text-align:center;}
+  .stat strong{display:block;font-size:1.3rem;font-weight:700;color:var(--accent);}
+  .stat span{font-size:0.78rem;color:var(--muted);font-weight:500;}
+
+  /* TABS */
+  .tabs{display:flex;gap:0;background:var(--white);border-bottom:1px solid var(--border);padding:0 2rem;overflow-x:auto;}
+  .tab-btn{background:none;border:none;padding:1rem 1.2rem;font-size:0.88rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;transition:all 0.2s;font-family:inherit;}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .tab-btn:hover:not(.active){color:var(--text);}
+
+  /* MAIN LAYOUT */
+  .main{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 200px);}
+  .sidebar{background:var(--white);border-right:1px solid var(--border);padding:1.5rem 1.2rem;}
+  .sidebar h3{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:0.8rem;}
+  .filter-group{margin-bottom:1.5rem;}
+  .filter-item{display:flex;align-items:center;gap:0.6rem;padding:0.4rem 0;cursor:pointer;}
+  .filter-item input{accent-color:var(--accent);}
+  .filter-item label{font-size:0.86rem;cursor:pointer;color:var(--text);}
+  .price-range{width:100%;accent-color:var(--accent);}
+  .price-vals{display:flex;justify-content:space-between;font-size:0.8rem;color:var(--muted);margin-top:0.3rem;}
+  .sidebar-divider{height:1px;background:var(--border);margin:1rem 0;}
+
+  /* PRODUCT GRID */
+  .products-area{padding:1.5rem;}
+  .products-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:0.8rem;}
+  .products-header h2{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;}
+  .sort-select{border:1px solid var(--border);border-radius:8px;padding:0.4rem 0.8rem;font-size:0.84rem;color:var(--text);background:var(--white);cursor:pointer;font-family:inherit;}
+  .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.2rem;}
+
+  /* PRODUCT CARD */
+  .product-card{background:var(--white);border-radius:16px;overflow:hidden;border:1px solid var(--border);transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;position:relative;}
+  .product-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);}
+  .product-img{width:100%;height:160px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;position:relative;}
+  .product-badge{position:absolute;top:10px;left:10px;background:var(--accent);color:#fff;border-radius:6px;padding:2px 8px;font-size:0.7rem;font-weight:700;}
+  .product-badge.new{background:var(--success);}
+  .product-badge.hot{background:var(--gold);}
+  .product-info{padding:1rem;}
+  .product-category{font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.25rem;}
+  .product-name{font-size:0.95rem;font-weight:600;margin-bottom:0.4rem;line-height:1.3;}
+  .product-rating{display:flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;}
+  .stars{color:var(--gold);}
+  .product-price{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;}
+  .price-current{font-size:1.15rem;font-weight:700;color:var(--primary);}
+  .price-original{font-size:0.82rem;color:var(--muted);text-decoration:line-through;}
+  .price-discount{font-size:0.75rem;font-weight:700;color:var(--success);}
+  .add-to-cart{width:100%;margin-top:0.75rem;background:var(--primary);color:#fff;border:none;padding:0.6rem;border-radius:10px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;}
+  .add-to-cart:hover{background:var(--accent);}
+  .wishlist-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.9);border:none;border-radius:50%;width:30px;height:30px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.2s;}
+  .wishlist-btn:hover{transform:scale(1.2);}
+
+  /* CART PANEL */
+  .cart-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;}
+  .cart-overlay.open{display:block;}
+  .cart-panel{position:fixed;right:0;top:0;height:100%;width:360px;background:var(--white);z-index:201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s cubic-bezier(.4,0,.2,1);box-shadow:-4px 0 30px rgba(0,0,0,0.15);}
+  .cart-panel.open{transform:translateX(0);}
+  .cart-header{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .cart-header h3{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;}
+  .close-btn{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.2s;}
+  .close-btn:hover{background:var(--light);}
+  .cart-items{flex:1;overflow-y:auto;padding:1rem 1.5rem;}
+  .cart-empty{text-align:center;padding:3rem 1rem;color:var(--muted);}
+  .cart-empty .icon{font-size:3rem;margin-bottom:1rem;display:block;}
+  .cart-item{display:flex;gap:0.8rem;padding:0.8rem 0;border-bottom:1px solid var(--border);align-items:center;}
+  .cart-item-icon{width:48px;height:48px;background:var(--light);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;}
+  .cart-item-info{flex:1;}
+  .cart-item-name{font-size:0.88rem;font-weight:600;margin-bottom:0.2rem;}
+  .cart-item-price{font-size:0.85rem;color:var(--accent);font-weight:700;}
+  .cart-item-qty{display:flex;align-items:center;gap:0.4rem;}
+  .qty-btn{background:var(--light);border:none;width:24px;height:24px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.85rem;transition:background 0.2s;}
+  .qty-btn:hover{background:var(--border);}
+  .cart-footer{padding:1.2rem 1.5rem;border-top:1px solid var(--border);}
+  .cart-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+  .cart-total span{font-size:0.9rem;color:var(--muted);}
+  .cart-total strong{font-size:1.25rem;font-weight:700;color:var(--primary);}
+  .checkout-btn{width:100%;background:var(--accent);color:#fff;border:none;padding:0.85rem;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;}
+  .checkout-btn:hover{background:#c73652;transform:translateY(-1px);}
+
+  /* LOGIN MODAL */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--white);border-radius:20px;width:360px;padding:2rem;position:relative;}
+  .modal h2{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;margin-bottom:0.3rem;}
+  .modal p{color:var(--muted);font-size:0.88rem;margin-bottom:1.5rem;}
+  .tab-pills{display:flex;background:var(--light);border-radius:10px;padding:3px;margin-bottom:1.5rem;}
+  .tab-pill{flex:1;padding:0.5rem;border:none;background:none;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;color:var(--muted);}
+  .tab-pill.active{background:var(--white);color:var(--primary);box-shadow:0 1px 4px rgba(0,0,0,0.1);}
+  .form-group{margin-bottom:1rem;}
+  .form-group label{display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.4rem;color:var(--text);}
+  .form-group input,.form-group select{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:0.65rem 0.9rem;font-size:0.9rem;font-family:inherit;color:var(--text);transition:border-color 0.2s;}
+  .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent);}
+  .role-select{display:flex;gap:0.5rem;margin-bottom:1rem;}
+  .role-opt{flex:1;padding:0.5rem;border:1.5px solid var(--border);border-radius:10px;font-size:0.82rem;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s;background:var(--white);color:var(--muted);}
+  .role-opt.active{border-color:var(--accent);color:var(--accent);background:#fef2f4;}
+  .submit-btn{width:100%;background:var(--accent);color:#fff;border:none;padding:0.8rem;border-radius:12px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;margin-top:0.5rem;}
+  .submit-btn:hover{background:#c73652;}
+
+  /* ORDER TRACKING */
+  .order-section{padding:2rem;display:none;}
+  .order-section.active{display:block;}
+  .order-search{display:flex;gap:0.8rem;margin-bottom:2rem;}
+  .order-search input{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:0.7rem 1rem;font-size:0.9rem;font-family:inherit;}
+  .order-search button{background:var(--accent);color:#fff;border:none;padding:0.7rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .order-card{background:var(--white);border-radius:16px;border:1px solid var(--border);padding:1.5rem;margin-bottom:1rem;}
+  .order-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;}
+  .order-id{font-weight:700;font-size:0.95rem;}
+  .order-status{padding:3px 12px;border-radius:50px;font-size:0.78rem;font-weight:700;}
+  .status-delivered{background:#d1fae5;color:#065f46;}
+  .status-shipped{background:#dbeafe;color:#1e40af;}
+  .status-processing{background:#fef3c7;color:#92400e;}
+  .status-cancelled{background:#fee2e2;color:#991b1b;}
+  .track-steps{display:flex;align-items:center;margin:1rem 0;gap:0;}
+  .track-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+  .track-step:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:var(--border);z-index:0;}
+  .track-step.done::after{background:var(--success);}
+  .step-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;font-size:0.75rem;z-index:1;position:relative;}
+  .track-step.done .step-dot{border-color:var(--success);background:var(--success);color:#fff;}
+  .track-step.current .step-dot{border-color:var(--accent);background:var(--accent);color:#fff;}
+  .step-label{font-size:0.68rem;color:var(--muted);margin-top:0.3rem;text-align:center;}
+
+  /* ADMIN PANEL */
+  .admin-section{padding:2rem;display:none;}
+  .admin-section.active{display:block;}
+  .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;}
+  .admin-stat{background:var(--white);border-radius:14px;border:1px solid var(--border);padding:1.2rem;}
+  .admin-stat .num{font-size:1.7rem;font-weight:700;color:var(--primary);}
+  .admin-stat .lbl{font-size:0.78rem;color:var(--muted);margin-top:0.2rem;}
+  .admin-stat .chg{font-size:0.75rem;font-weight:600;color:var(--success);}
+  .admin-table{width:100%;border-collapse:collapse;background:var(--white);border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+  .admin-table th{background:var(--primary);color:#fff;padding:0.75rem 1rem;font-size:0.8rem;font-weight:600;text-align:left;}
+  .admin-table td{padding:0.75rem 1rem;font-size:0.84rem;border-bottom:1px solid var(--border);}
+  .admin-table tr:last-child td{border-bottom:none;}
+  .admin-table tr:hover td{background:var(--light);}
+  .tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:0.72rem;font-weight:700;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:2rem;right:2rem;background:var(--primary);color:#fff;padding:0.75rem 1.5rem;border-radius:12px;font-size:0.88rem;font-weight:600;z-index:999;transform:translateY(100px);opacity:0;transition:all 0.3s;}
+  .toast.show{transform:translateY(0);opacity:1;}
+
+  /* RESPONSIVE */
+  @media(max-width:700px){
+    .main{grid-template-columns:1fr;}
+    .sidebar{display:none;}
+    .hero h1{font-size:2rem;}
+    .stats-bar{gap:1.5rem;}
+    .cart-panel{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== NAVBAR ==================== -->
+<nav>
+  <div class="logo">Shop<span>Bhārat</span></div>
+  <div class="nav-links">
+    <a class="active" onclick="showPage('shop')">Shop</a>
+    <a onclick="showPage('orders')">Orders</a>
+    <a onclick="showPage('admin')">Admin</a>
+  </div>
+  <div class="nav-right">
+    <button class="cart-btn" onclick="openCart()">
+      🛒 Cart <span class="badge" id="cart-count">0</span>
+    </button>
+    <button class="btn-outline" style="padding:0.4rem 1rem;font-size:0.82rem;" onclick="openLogin()">Login</button>
+  </div>
+</nav>
+
+<!-- ==================== HERO SECTION ==================== -->
+<div class="hero" id="hero-section">
+  <div class="hero-badge">🇮🇳 Made for India</div>
+  <h1>Shop <span>Smarter</span>,<br>Live Better</h1>
+  <p>Discover curated products at the best prices — delivered across India with love.</p>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="scrollToProducts()">Explore Products</button>
+    <button class="btn-outline" onclick="openLogin()">Join Now — Free</button>
+  </div>
+</div>
+
+<!-- ==================== STATS BAR ==================== -->
+<div class="stats-bar">
+  <div class="stat"><strong>1.2L+</strong><span>Products</span></div>
+  <div class="stat"><strong>50K+</strong><span>Happy Customers</span></div>
+  <div class="stat"><strong>28 States</strong><span>Delivered</span></div>
+  <div class="stat"><strong>4.8★</strong><span>App Rating</span></div>
+</div>
+
+<!-- ==================== SHOP PAGE ==================== -->
+<div id="shop-page">
+  <!-- Category Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="filterCategory('all',this)">All</button>
+    <button class="tab-btn" onclick="filterCategory('electronics',this)">Electronics</button>
+    <button class="tab-btn" onclick="filterCategory('fashion',this)">Fashion</button>
+    <button class="tab-btn" onclick="filterCategory('home',this)">Home & Kitchen</button>
+    <button class="tab-btn" onclick="filterCategory('beauty',this)">Beauty</button>
+    <button class="tab-btn" onclick="filterCategory('sports',this)">Sports</button>
+  </div>
+
+  <div class="main">
+    <!-- Sidebar Filters -->
+    <div class="sidebar">
+      <div class="filter-group">
+        <h3>Price Range</h3>
+        <input type="range" class="price-range" min="0" max="100000" value="100000" id="price-filter" oninput="filterPrice(this.value)"/>
+        <div class="price-vals"><span>₹0</span><span id="price-max">₹1,00,000</span></div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="filter-group">
+        <h3>Brand</h3>
+        <div class="filter-item"><input type="checkbox" checked id="b1"/><label for="b1">Apple</label></div>
+        <div class="filter-item"><input type="checkbox" checked id="b2"/><label for="b2">Samsung</label></div>
+        <div class="filter-item"><input type="checkbox" checked id="b3"/><label for="b3">Nike</label></div>
+        <div class="filter-item"><input type="checkbox" checked id="b4"/><label for="b4">Boat</label></div>
+        <div class="filter-item"><input type="checkbox" checked id="b5"/><label for="b5">Prestige</label></div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="filter-group">
+        <h3>Rating</h3>
+        <div class="filter-item"><input type="checkbox" checked/><label>4★ & above</label></div>
+        <div class="filter-item"><input type="checkbox" checked/><label>3★ & above</label></div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="filter-group">
+        <h3>Offers</h3>
+        <div class="filter-item"><input type="checkbox"/><label>Bank Offers</label></div>
+        <div class="filter-item"><input type="checkbox"/><label>No-Cost EMI</label></div>
+        <div class="filter-item"><input type="checkbox"/><label>Free Delivery</label></div>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="products-area" id="product-section">
+      <div class="products-header">
+        <h2>Featured Products</h2>
+        <select class="sort-select" onchange="sortProducts(this.value)">
+          <option value="default">Sort: Featured</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="rating">Rating</option>
+        </select>
+      </div>
+      <div class="product-grid" id="product-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ORDERS PAGE ==================== -->
+<div id="orders-page" style="display:none;">
+  <div class="order-section active">
+    <h2 style="font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:0.5rem;">Order Tracking</h2>
+    <p style="color:var(--muted);margin-bottom:1.5rem;">Track your orders in real-time across India</p>
+    <div class="order-search">
+      <input type="text" placeholder="Enter Order ID (e.g. SB-2024-001)..." id="order-input"/>
+      <button onclick="trackOrder()">Track</button>
+    </div>
+    <div id="orders-list"></div>
+  </div>
+</div>
+
+<!-- ==================== ADMIN PAGE ==================== -->
+<div id="admin-page" style="display:none;">
+  <div class="admin-section active">
+    <h2 style="font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:0.5rem;">Admin Dashboard</h2>
+    <p style="color:var(--muted);margin-bottom:1.5rem;">Manage products, orders, and users</p>
+    <div class="admin-grid">
+      <div class="admin-stat"><div class="num">₹4.2L</div><div class="lbl">Today's Revenue</div><div class="chg">↑ 18% vs yesterday</div></div>
+      <div class="admin-stat"><div class="num">1,284</div><div class="lbl">Orders Today</div><div class="chg">↑ 9% vs last week</div></div>
+      <div class="admin-stat"><div class="num">342</div><div class="lbl">Products Listed</div><div class="chg">↑ 5 added today</div></div>
+      <div class="admin-stat"><div class="num">28,471</div><div class="lbl">Registered Users</div><div class="chg">↑ 127 new today</div></div>
+    </div>
+    <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem;">Recent Orders</h3>
+    <table class="admin-table">
+      <thead><tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+        <tr><td>#SB-1284</td><td>Priya Sharma</td><td>iPhone 15 Pro</td><td>₹1,34,900</td><td><span class="tag status-delivered">Delivered</span></td><td>24 Jan 2025</td></tr>
+        <tr><td>#SB-1283</td><td>Rahul Gupta</td><td>boAt Airdopes</td><td>₹2,499</td><td><span class="tag status-shipped">Shipped</span></td><td>24 Jan 2025</td></tr>
+        <tr><td>#SB-1282</td><td>Meera Nair</td><td>Nike Air Force 1</td><td>₹8,495</td><td><span class="tag status-processing">Processing</span></td><td>23 Jan 2025</td></tr>
+        <tr><td>#SB-1281</td><td>Arjun Mehta</td><td>Prestige Cooker</td><td>₹1,850</td><td><span class="tag status-delivered">Delivered</span></td><td>23 Jan 2025</td></tr>
+        <tr><td>#SB-1280</td><td>Kavya Reddy</td><td>Samsung Galaxy S24</td><td>₹74,999</td><td><span class="tag status-cancelled">Cancelled</span></td><td>22 Jan 2025</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== CART SLIDE PANEL ==================== -->
+<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+<div class="cart-panel" id="cart-panel">
+  <div class="cart-header">
+    <h3>🛒 Your Cart</h3>
+    <button class="close-btn" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items-list"></div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total Amount</span>
+      <strong id="cart-total-price">₹0</strong>
+    </div>
+    <button class="checkout-btn" onclick="checkout()">Proceed to Checkout →</button>
+  </div>
+</div>
+
+<!-- ==================== LOGIN / REGISTER MODAL ==================== -->
+<div class="modal-overlay" id="login-modal" onclick="closeLoginOutside(event)">
+  <div class="modal">
+    <h2>Welcome Back!</h2>
+    <p>Sign in to your ShopBhārat account</p>
+    <div class="tab-pills">
+      <button class="tab-pill active" id="login-tab" onclick="switchAuthTab('login')">Login</button>
+      <button class="tab-pill" id="register-tab" onclick="switchAuthTab('register')">Register</button>
+    </div>
+    <!-- Login Form -->
+    <div id="login-form">
+      <div class="form-group"><label>Email / Phone</label><input type="text" placeholder="you@email.com or 9876543210"/></div>
+      <div class="form-group"><label>Password</label><input type="password" placeholder="••••••••"/></div>
+      <button class="submit-btn" onclick="fakeLogin()">Sign In</button>
+    </div>
+    <!-- Register Form -->
+    <div id="register-form" style="display:none;">
+      <div class="form-group"><label>Full Name</label><input type="text" placeholder="Priya Sharma"/></div>
+      <div class="form-group"><label>Email</label><input type="email" placeholder="you@email.com"/></div>
+      <div class="form-group"><label>Phone</label><input type="tel" placeholder="9876543210"/></div>
+      <p style="font-size:0.8rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">Account Role</p>
+      <div class="role-select">
+        <div class="role-opt active" onclick="selectRole(this,'user')">👤 User</div>
+        <div class="role-opt" onclick="selectRole(this,'admin')">⚙️ Admin</div>
+      </div>
+      <div class="form-group"><label>Password</label><input type="password" placeholder="••••••••"/></div>
+      <button class="submit-btn" onclick="fakeLogin()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TOAST NOTIFICATION ==================== -->
+<div class="toast" id="toast"></div>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+// ---- Product Data (INR Prices) ----
+const products = [
+  {id:1, name:"iPhone 15 Pro",       category:"electronics", emoji:"📱", brand:"Apple",   price:134900, original:149900, rating:4.8, reviews:2341,  badge:"Hot",         badgeType:"hot",  bg:"#fff5f5"},
+  {id:2, name:"Samsung Galaxy S24",  category:"electronics", emoji:"📲", brand:"Samsung", price:74999,  original:89999,  rating:4.7, reviews:1820,  badge:"Sale",        badgeType:"sale", bg:"#f0f9ff"},
+  {id:3, name:"boAt Airdopes 141",   category:"electronics", emoji:"🎧", brand:"Boat",    price:1299,   original:2990,   rating:4.3, reviews:45621, badge:"Best Seller",  badgeType:"hot",  bg:"#f0fff4"},
+  {id:4, name:"Nike Air Force 1",    category:"fashion",     emoji:"👟", brand:"Nike",    price:8495,   original:9995,   rating:4.6, reviews:3201,  badge:"New",         badgeType:"new",  bg:"#fffbf0"},
+  {id:5, name:"Levi's 511 Slim Fit", category:"fashion",     emoji:"👖", brand:"Levi's",  price:2799,   original:4499,   rating:4.4, reviews:8920,  badge:"Sale",        badgeType:"sale", bg:"#f0f4ff"},
+  {id:6, name:"Prestige Cooker",     category:"home",        emoji:"🍳", brand:"Prestige",price:1850,   original:2500,   rating:4.7, reviews:12034, badge:"Trusted",     badgeType:"new",  bg:"#fff9f0"},
+  {id:7, name:"Dyson V12 Vacuum",    category:"home",        emoji:"🌀", brand:"Dyson",   price:43900,  original:54900,  rating:4.5, reviews:1204,  badge:"Premium",     badgeType:"hot",  bg:"#faf0ff"},
+  {id:8, name:"Lakme Foundation",    category:"beauty",      emoji:"💄", brand:"Lakme",   price:549,    original:799,    rating:4.2, reviews:34201, badge:"New",         badgeType:"new",  bg:"#fff0f7"},
+  {id:9, name:"Yoga Mat Pro",        category:"sports",      emoji:"🧘", brand:"Boldfit", price:699,    original:1299,   rating:4.4, reviews:8912,  badge:"Sale",        badgeType:"sale", bg:"#f0fff9"},
+  {id:10,name:"MacBook Air M3",      category:"electronics", emoji:"💻", brand:"Apple",   price:114900, original:129900, rating:4.9, reviews:908,   badge:"New",         badgeType:"new",  bg:"#f5f5ff"},
+  {id:11,name:"Kanjeevaram Saree",   category:"fashion",     emoji:"🥻", brand:"FabIndia",price:3499,   original:5500,   rating:4.8, reviews:2201,  badge:"Indian",      badgeType:"new",  bg:"#fff5e6"},
+  {id:12,name:"Cricket Bat MSD",     category:"sports",      emoji:"🏏", brand:"SG",      price:2799,   original:3999,   rating:4.6, reviews:4120,  badge:"Hot",         badgeType:"hot",  bg:"#f0fff4"},
+];
+
+let cart = [];
+let filteredProducts = [...products];
+let currentCategory = 'all';
+let maxPrice = 100000;
+
+// ---- Utility ----
+function formatPrice(p){ return '₹' + p.toLocaleString('en-IN'); }
+function discount(orig, curr){ return Math.round((orig - curr) / orig * 100); }
+
+// ---- Render Products ----
+function renderProducts(list){
+  const grid = document.getElementById('product-grid');
+  if(!list.length){
+    grid.innerHTML = '<p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:3rem;">No products found.</p>';
+    return;
+  }
+  grid.innerHTML = list.map(p => `
+    <div class="product-card">
+      <div class="product-img" style="background:${p.bg}">${p.emoji}
+        <span class="product-badge ${p.badgeType}">${p.badge}</span>
+        <button class="wishlist-btn" onclick="toggleWish(this)" title="Wishlist">🤍</button>
+      </div>
+      <div class="product-info">
+        <div class="product-category">${p.brand}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-rating">
+          <span class="stars">★</span> ${p.rating} <span>(${p.reviews.toLocaleString('en-IN')})</span>
+        </div>
+        <div class="product-price">
+          <span class="price-current">${formatPrice(p.price)}</span>
+          <span class="price-original">${formatPrice(p.original)}</span>
+          <span class="price-discount">${discount(p.original, p.price)}% off</span>
+        </div>
+        <button class="add-to-cart" onclick="addToCart(${p.id})">+ Add to Cart</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ---- Filters ----
+function filterCategory(cat, btn){
+  currentCategory = cat;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function filterPrice(val){
+  maxPrice = parseInt(val);
+  document.getElementById('price-max').textContent = '₹' + parseInt(val).toLocaleString('en-IN');
+  applyFilters();
+}
+
+function applyFilters(){
+  filteredProducts = products.filter(p => {
+    const catMatch = currentCategory === 'all' || p.category === currentCategory;
+    const priceMatch = p.price <= maxPrice;
+    return catMatch && priceMatch;
+  });
+  renderProducts(filteredProducts);
+}
+
+function sortProducts(val){
+  let list = [...filteredProducts];
+  if(val === 'price-asc') list.sort((a, b) => a.price - b.price);
+  else if(val === 'price-desc') list.sort((a, b) => b.price - a.price);
+  else if(val === 'rating') list.sort((a, b) => b.rating - a.rating);
+  renderProducts(list);
+}
+
+// ---- Cart ----
+function addToCart(id){
+  const p = products.find(x => x.id === id);
+  const existing = cart.find(x => x.id === id);
+  if(existing) existing.qty++;
+  else cart.push({...p, qty: 1});
+  updateCartUI();
+  showToast(`${p.emoji} ${p.name} added to cart!`);
+}
+
+function updateCartUI(){
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  document.getElementById('cart-count').textContent = count;
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  document.getElementById('cart-total-price').textContent = formatPrice(total);
+
+  const list = document.getElementById('cart-items-list');
+  if(!cart.length){
+    list.innerHTML = `<div class="cart-empty"><span class="icon">🛒</span><p>Your cart is empty</p><p style="font-size:0.82rem;color:var(--muted);margin-top:0.5rem;">Add items to get started</p></div>`;
+    return;
+  }
+  list.innerHTML = cart.map((item, i) => `
+    <div class="cart-item">
+      <div class="cart-item-icon">${item.emoji}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">${formatPrice(item.price)}</div>
+      </div>
+      <div class="cart-item-qty">
+        <button class="qty-btn" onclick="changeQty(${i}, -1)">−</button>
+        <span style="font-size:0.9rem;font-weight:600;min-width:20px;text-align:center">${item.qty}</span>
+        <button class="qty-btn" onclick="changeQty(${i}, 1)">+</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function changeQty(i, d){
+  cart[i].qty += d;
+  if(cart[i].qty <= 0) cart.splice(i, 1);
+  updateCartUI();
+}
+
+function openCart(){ document.getElementById('cart-overlay').classList.add('open'); document.getElementById('cart-panel').classList.add('open'); }
+function closeCart(){ document.getElementById('cart-overlay').classList.remove('open'); document.getElementById('cart-panel').classList.remove('open'); }
+function checkout(){ closeCart(); showToast('🎉 Order placed! You will receive a confirmation SMS.'); }
+function toggleWish(btn){ btn.textContent = btn.textContent === '🤍' ? '❤️' : '🤍'; }
+
+// ---- Toast ----
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ---- Auth Modal ----
+function openLogin(){ document.getElementById('login-modal').classList.add('open'); }
+function closeLoginOutside(e){ if(e.target === document.getElementById('login-modal')) document.getElementById('login-modal').classList.remove('open'); }
+function fakeLogin(){ document.getElementById('login-modal').classList.remove('open'); showToast('✅ Welcome to ShopBhārat!'); }
+function switchAuthTab(t){
+  document.getElementById('login-form').style.display = t === 'login' ? 'block' : 'none';
+  document.getElementById('register-form').style.display = t === 'register' ? 'block' : 'none';
+  document.getElementById('login-tab').classList.toggle('active', t === 'login');
+  document.getElementById('register-tab').classList.toggle('active', t === 'register');
+}
+function selectRole(el, r){ document.querySelectorAll('.role-opt').forEach(o => o.classList.remove('active')); el.classList.add('active'); }
+
+// ---- Page Navigation ----
+function showPage(page){
+  document.getElementById('hero-section').style.display = page === 'shop' ? '' : 'none';
+  document.querySelector('.stats-bar').style.display = page === 'shop' ? '' : 'none';
+  document.getElementById('shop-page').style.display = page === 'shop' ? '' : 'none';
+  document.getElementById('orders-page').style.display = page === 'orders' ? '' : 'none';
+  document.getElementById('admin-page').style.display = page === 'admin' ? '' : 'none';
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  event.target.classList.add('active');
+  if(page === 'orders') renderOrders();
+}
+
+function scrollToProducts(){ document.getElementById('product-section').scrollIntoView({behavior:'smooth'}); }
+
+// ---- Order Tracking ----
+const ordersData = [
+  {id:'SB-2024-001', product:'iPhone 15 Pro 📱',     amount:134900, status:'Delivered', steps:4},
+  {id:'SB-2024-002', product:'boAt Airdopes 141 🎧', amount:1299,   status:'Shipped',   steps:3},
+  {id:'SB-2024-003', product:'Nike Air Force 1 👟',  amount:8495,   status:'Processing',steps:2},
+];
+
+function renderOrders(){
+  const el = document.getElementById('orders-list');
+  const stepNames = ['Ordered', 'Packed', 'Shipped', 'Delivered'];
+  el.innerHTML = ordersData.map(o => `
+    <div class="order-card">
+      <div class="order-top">
+        <div>
+          <div class="order-id">Order ${o.id}</div>
+          <div style="font-size:0.85rem;color:var(--muted);margin-top:0.2rem;">${o.product}</div>
+        </div>
+        <div>
+          <span class="order-status status-${o.status.toLowerCase()}">${o.status}</span>
+          <div style="font-size:0.8rem;color:var(--muted);margin-top:0.3rem;text-align:right;">${formatPrice(o.amount)}</div>
+        </div>
+      </div>
+      <div class="track-steps">
+        ${stepNames.map((s, i) => `
+          <div class="track-step ${i < o.steps ? 'done' : ''} ${i === o.steps - 1 ? 'current' : ''}">
+            <div class="step-dot">${i < o.steps ? '✓' : i + 1}</div>
+            <div class="step-label">${s}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function trackOrder(){
+  const id = document.getElementById('order-input').value.trim();
+  if(!id){ showToast('⚠️ Please enter an Order ID'); return; }
+  const found = ordersData.find(o => o.id.toLowerCase() === id.toLowerCase());
+  if(found) showToast(`✅ ${found.id}: ${found.status}`);
+  else showToast('❌ Order not found. Try: SB-2024-001');
+}
+
+// ---- Init ----
+renderProducts(products);
+updateCartUI();
+</script>
+</body>
+</html>
